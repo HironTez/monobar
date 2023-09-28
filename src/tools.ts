@@ -28,7 +28,7 @@ export const copyFile = (
   return new Promise<boolean>((resolve) => {
     const newFilePath = path.join(targetPath, path.basename(filePath));
 
-    if (!override && fs.existsSync(newFilePath)) return true;
+    if (!override && fs.existsSync(newFilePath)) return resolve(true);
 
     fs.mkdir(targetPath, { recursive: true }, (error) => {
       if (error) {
@@ -37,7 +37,6 @@ export const copyFile = (
     });
 
     fs.copyFile(filePath, newFilePath, (error) => {
-      console.log("🚀 ~ file: tools.ts:35 ~ copyFile ~ error:", error);
       return resolve(!error);
     });
   });

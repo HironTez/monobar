@@ -60,7 +60,7 @@ const main = async (): Promise<void> => {
       PATH_STORAGE,
       path
         .basename(shortcutTarget)
-        .replace(path.extname(shortcutTarget), ".png"),
+        .replace(path.extname(shortcutTarget), ".ico"),
     );
 
     saveFile(newIconIco, newIconPath);
