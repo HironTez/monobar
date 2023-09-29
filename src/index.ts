@@ -22,30 +22,37 @@ const PATH_TASKBAR = path.join(
 
 const PATH_STORAGE = path.join(PATH_TASKBAR, ".monobar");
 
+const PATH_BACKUP = path.join(PATH_STORAGE, ".backup");
+
 const main = async (): Promise<void> => {
   if (!fs.existsSync(PATH_TASKBAR))
     throw new Error("Can't find taskbar directory");
 
+  // Get accent color from the wallpaper
   const wallpaper = await getWallpaper();
   const colors = await Vibrant.from(wallpaper).getPalette();
-  const accentColor = colors.Vibrant;
+  const accentColor = colors.LightVibrant;
 
   const shortcuts = getFiles(PATH_TASKBAR, "lnk");
   for (const shortcut of shortcuts) {
-    const backedUp = await copyFile(
-      shortcut,
-      path.join(PATH_STORAGE, ".backup"),
-    );
+    // Restore backup or create a backup if it doesn't exist
+    const shortcutBackupPath = path.join(PATH_BACKUP, path.basename(shortcut));
+    await copyFile(shortcutBackupPath, PATH_TASKBAR, true);
+    const backedUp = await copyFile(shortcut, PATH_BACKUP);
     if (!backedUp) continue;
 
+    // Get icon path
     const meta = await getShortcutMeta(shortcut);
-
     const shortcutTarget = meta?.target;
-    if (!shortcutTarget) continue;
+    const shortcutIcon = meta?.icon;
+    const targetPath = (shortcutTarget || shortcutIcon) ?? null;
+    if (!targetPath) continue;
 
-    const icon = extractIcon(shortcutTarget, "small");
+    // Extract the icon
+    const icon = extractIcon(targetPath, "large");
+
+    // Edit the icon
     const iconPNG = await convertIcoToPng(icon);
-
     const newIconPNG = await sharp(iconPNG)
       .tint({
         r: accentColor?.r,
@@ -53,18 +60,17 @@ const main = async (): Promise<void> => {
         b: accentColor?.b,
       })
       .toBuffer();
-
     const newIconIco = await covertPngToIco(newIconPNG);
 
     const newIconPath = path.join(
       PATH_STORAGE,
-      path
-        .basename(shortcutTarget)
-        .replace(path.extname(shortcutTarget), ".ico"),
+      path.basename(targetPath).replace(path.extname(targetPath), ".ico"),
     );
 
+    // Save the new icon
     saveFile(newIconIco, newIconPath);
 
+    // Apply the new icon
     changeShortcutIcon(shortcut, newIconPath);
   }
 };

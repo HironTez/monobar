@@ -47,7 +47,8 @@ export const saveFile = (buffer: Buffer, targetPath: string) => {
 };
 
 type ShortcutMeta = {
-  target?: string | undefined;
+  target: string;
+  icon: string;
 };
 
 export const getShortcutMeta = (
@@ -57,7 +58,7 @@ export const getShortcutMeta = (
     ws.query(filePath.replaceAll("\\", "/"), (_, options) => {
       if (options) {
         try {
-          return resolve(options);
+          return resolve(options as ShortcutMeta | null);
         } catch {
           null;
         }
@@ -73,7 +74,7 @@ export const changeShortcutIcon = (filePath: string, iconPath: string) => {
 
 export const convertIcoToPng = (file: Buffer) => {
   return new Promise<Buffer>((resolve) => {
-    icoToPng(file, 128).then((png) => {
+    icoToPng(file, 256).then((png) => {
       resolve(png);
     });
   });
@@ -81,7 +82,7 @@ export const convertIcoToPng = (file: Buffer) => {
 
 export const covertPngToIco = (file: Buffer) => {
   return new Promise<Buffer>((resolve) => {
-    toIco(file).then((ico) => {
+    toIco(file, { sizes: [256] }).then((ico) => {
       resolve(ico);
     });
   });
