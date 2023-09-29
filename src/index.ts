@@ -9,6 +9,7 @@ import {
 } from "./tools.js";
 
 import Vibrant from "node-vibrant";
+import { execFile } from "child_process";
 import { extractIcon } from "@inithink/exe-icon-extractor";
 import fs from "fs";
 import { getWallpaper } from "wallpaper";
@@ -73,6 +74,12 @@ const main = async (): Promise<void> => {
     // Apply the new icon
     changeShortcutIcon(shortcut, newIconPath);
   }
+
+  // Restart explorer.exe
+  execFile("powershell.exe", [
+    `taskkill /f /im explorer.exe
+    start explorer.exe`,
+  ]).unref();
 };
 
 main();
