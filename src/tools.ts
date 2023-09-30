@@ -87,3 +87,14 @@ export const covertPngToIco = (file: Buffer) => {
     });
   });
 };
+
+export const tryWithoutCatch = <T, T2>(
+  fn: () => T,
+  returnOnError?: T2,
+): T | (T2 extends unknown ? undefined : T2) => {
+  try {
+    return fn();
+  } catch {
+    return returnOnError as T | (T2 extends unknown ? undefined : T2);
+  }
+};
