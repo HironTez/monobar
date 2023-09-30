@@ -56,14 +56,7 @@ export const getShortcutMeta = (
 ): Promise<ShortcutMeta | null> => {
   return new Promise((resolve) => {
     ws.query(filePath.replaceAll("\\", "/"), (_, options) => {
-      if (options) {
-        try {
-          return resolve(options as ShortcutMeta | null);
-        } catch {
-          null;
-        }
-      }
-      resolve(null);
+      return resolve((options as ShortcutMeta | null) ?? null);
     });
   });
 };
@@ -88,13 +81,10 @@ export const covertPngToIco = (file: Buffer) => {
   });
 };
 
-export const tryWithoutCatch = <T, T2>(
-  fn: () => T,
-  returnOnError?: T2,
-): T | (T2 extends unknown ? undefined : T2) => {
+export const tryWithoutCatch = <T>(fn: () => T) => {
   try {
     return fn();
   } catch {
-    return returnOnError as T | (T2 extends unknown ? undefined : T2);
+    return undefined;
   }
 };

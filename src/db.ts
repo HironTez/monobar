@@ -9,7 +9,7 @@ const getDB = () => {
     fs.readFile(PATH_DB, "utf-8", (error, data) => {
       if (error) return resolve({});
 
-      resolve(tryWithoutCatch(() => JSON.parse(data), {}));
+      resolve(tryWithoutCatch(() => JSON.parse(data)) ?? {});
     });
   });
 };
